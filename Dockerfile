@@ -1,5 +1,12 @@
-FROM tomcat 
-WORKDIR webapps 
-COPY target/WebApp.war .
-RUN rm -rf ROOT && mv WebApp.war ROOT.war
-ENTRYPOINT ["sh", "/usr/local/tomcat/bin/startup.sh"]
+# You can change this base image to anything else
+# But make sure to use the correct version of Java
+
+FROM adoptopenjdk/openjdk11:alphine-jre
+
+ARG artifact=target/spring-boot-web.jar
+
+WORKDIR /opt/app
+
+COPY ${artifact} app.jar
+
+ENTRYPOINT [ "java","-jar","app.jar" ]
