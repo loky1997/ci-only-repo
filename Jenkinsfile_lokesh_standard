@@ -31,17 +31,19 @@ pipeline {
         stage("build the docker image") {
             steps {
                 script {
-                    sh 'docker build lokeshhs591/ultimate-cicd:${BUILD_NUMBER} .'
+                    sh 'docker build -t lokeshhs591/ultimate-cicd:${BUILD_NUMBER} .'
                     }
                 }
             }
-        }
         stage('push the dockerimage to dockerhub'){
-            script{
-                withCredentials([string(credentialsId: 'docker_cred', variable: 'Docker_hub')]) {
-                    sh 'docker login -u -p ${Docker_hub}'
-                }
+            steps {
+                script{
+                     withCredentials([string(credentialsId: 'docker_cred', variable: 'Docker_hub')]) {
+                        sh 'docker login -u -p ${Docker_hub}'
+                    }
                 sh 'docker push lokeshhs591/ultimate-cicd:${BUILD_NUMBER}'
+                }
             }
         }
     }
+}
