@@ -39,7 +39,7 @@ pipeline {
             steps {
                 script{
                      withCredentials([string(credentialsId: 'docker_cred', variable: 'Docker_hub')]) {
-                        sh 'docker login -u -p ${Docker_hub}'
+                        sh 'docker login -u lokeshhs591 -p ${Docker_hub}'
                     }
                 sh 'docker push lokeshhs591/ultimate-cicd:${BUILD_NUMBER}'
                 }
