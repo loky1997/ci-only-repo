@@ -1,0 +1,39 @@
+pipeline {
+    agent {
+        docker {
+                  image 'abhishekf5/maven-abhishek-docker-agent:v1'
+                args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
+                }
+            }
+    stages {
+        stage("checkout") {
+            steps {
+             checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/loky1997/ci-only-repo.git']])   
+            }
+        }
+        stage("maven build") {
+            steps {
+                sh 'mvn --version'
+                sh 'mvn clean package'
+            }
+        }
+        stage("execute sonarqube analysis"){
+            environment {
+                    SONAR_URL = "http://4.240.116.8:9000"
+                 }
+            steps {
+                withCredentials([string(credentialsId: 'sonarqube', variable: 'sonarqubetoken')]) {
+                sh "mvn sonar:sonar -Dsonar.login=$sonarqubetoken -Dsonar.host.url=${SONAR_URL}"
+                }
+            }
+        }
+            
+        stage("build and push docker image") {
+            steps {
+                    sh 'docker build -t lokeshhs591/ultimate-cicd-abhishek:${BUILD_NUMBER} .'
+                        sh 'docker login -u lokeshhs591 -p '
+                        sh 'docker push lokeshhs591/ultimate-cicd-abhishek:${BUILD_NUMBER}'
+                }
+            }
+        }
+    }
